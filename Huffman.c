@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define CHAR_RANGE()('z' - 'A' + 1) // can only use characters from A - z ASCII value
+#define NUM_CHARS CHAR_RANGE()
+
 typedef struct HuffNode{
     unsigned freq; 
     char data;
@@ -63,7 +66,7 @@ HuffHeap* buildMinHeap(char data[], unsigned freq[], unsigned size){
     
     int i;
     for(i=0; i<size;i++){
-        heap->heap[i] = newNode(data[i], freq[i]);
+        heap->heap[i] = newNode(data[i], freq[data[i] - 'A']);
     }
 
     heap->size = size;
@@ -166,7 +169,31 @@ int getString(char* string, char *fname){
     return 1;
 }
 //-----------------------------------------------------------------------//
+int getFreqAndAlphabetLength(char *string, int freq[]){
+    int i, alphabetLength = 0;
+    for(i = 0; i < sizeof(string); i++){
+        freq[string[i] - 'A']++;
 
+    }
+    for(i = 0; i < NUM_CHARS; i++){
+        if(freq[i]){
+            alphabetLength++;
+        }
+    }
+
+    return alphabetLength;
+}
+
+void getC(char *C, int freq[]){
+    int i, j;
+    for(i=0, j=0;i < NUM_CHARS; i++){
+        if(freq[i]){
+            C[j++] = i + 'A';
+        }
+    }
+}
+
+//-----------------------------------------------------------------------//
 int main(int argv, char **args){
 	if(argv != 2){
 		printf("ERROR: Wrong number of arguments: must pass in one file\n");
@@ -179,10 +206,31 @@ int main(int argv, char **args){
         return EXIT_FAILURE;
     };
 	
+    int freq[NUM_CHARS];
+    int i;
+    for(i=0;i<NUM_CHARS;i++){
+        freq[i] = 0;
+    }
+    
+    int alphabetLength = getFreqAndAlphabetLength(string, freq);
+
+    char* C = (char*)malloc(alphabetLength);
+    
+    getC(C, freq);
+
+    HuffNode *tree = buildHuffTree(C, freq, alphabetLength);
+    
+    // char* huffcode = 
     // TEST
-
+    int j;
 	printf("%s",string);
-
+    for(i = 0, j=0; i < NUM_CHARS && j < sizeof(C); i++){
+        if(!freq[i])
+            continue;
+        printf("FREQ[%d] == %d and %d + 'A' == %c\n", i, freq[i], i, i + 'A');
+        printf("C[%d] == %c\n", j, C[j]);
+        j++;
+    }
     free(string);
-		
+    free(C);
 }
