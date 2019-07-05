@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_TREE_SIZE = 100;
-
 typedef struct HuffNode{
     unsigned freq; 
     char data;
@@ -125,11 +123,66 @@ HuffNode* buildHuffTree(char data[], unsigned freq[], unsigned size){
 }
 
 //-----------------------------------------------------------------------//
-int main(){
-    char c[] = {'a','c','b','g','e'};
-    HuffNode *treeRoot = buildHuffTree(c,
-                             (unsigned[]){5,2,3,7,1},
-                             (sizeof(c)/sizeof(c[0])));
-    freeTree(treeRoot);
+
+int getNumberChars(char *fname){
+
+	FILE *file = fopen(fname, "r");
+        
+	if(file == NULL){
+		fclose(file);
+		printf("ERROR: Null file");
+		return 0;
+	}
+	int count;
+
+    while(fgetc(file) != EOF){
+		count++;
+	}	
+
+	fclose(file);
+}
+
+int getString(char* string, char *fname){
     
+	FILE *file = fopen(fname, "r");
+	if(file == NULL) {
+		fclose(file);
+		printf("ERROR: Null file\n");
+        return 0;
+	}
+	
+	char c;
+	int i, strsize = sizeof(string);
+	for(i = 0; (c = fgetc(file)) != EOF; i++){	
+		if(i > strsize){
+			fclose(file);
+			printf("ERROR: buffer overflow\n");
+            return 0;
+		}
+		string[i] = c;
+	}
+    fclose(file);
+
+    return 1;
+}
+//-----------------------------------------------------------------------//
+
+int main(int argv, char **args){
+	if(argv != 2){
+		printf("ERROR: Wrong number of arguments: must pass in one file\n");
+		return EXIT_FAILURE;
+	}	
+
+	char *string = (char*)malloc(getNumberChars(args[1]));
+	
+	if(!getString(string, args[1])){
+        return EXIT_FAILURE;
+    };
+	
+    // TEST
+
+	printf("%s",string);
+
+    free(string);
+		
 }
